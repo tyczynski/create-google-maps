@@ -1,0 +1,16 @@
+# dependencies
+node_modules
+
+# build
+dist
+
+# dev
+dev-playground
+ex
+
+# misc
+.DS_Store
+
+# editor
+.vscode
+.idea

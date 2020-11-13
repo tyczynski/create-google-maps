@@ -1,0 +1,33 @@
+{
+  "name": "create-google-maps",
+  "version": "0.1.0",
+  "description": "Library for declarative creation of Google Maps",
+  "source": "src/index.ts",
+  "main": "dist/create-google-maps.js",
+  "module": "dist/create-google-maps.module.js",
+  "unpkg": "dist/create-google-maps.umd.js",
+  "esmodule": "dist/create-google-maps.modern.js",
+  "types": "dist/create-google-maps.d.ts",
+  "scripts": {
+    "build": "rimraf dist && microbundle --name CreateGoogleMaps",
+    "dev": "rimraf dist && rimraf dev-playground/dist && microbundle watch --entry dev-playground/playground.ts --output dev-playground/dist --name CreateGoogleMaps & live-server dev-playground/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tyczynski/create-google-maps.git"
+  },
+  "keywords": [],
+  "author": "Przemysław Tyczyński <przemyslaw@tyczynski.pl",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tyczynski/create-google-maps/issues"
+  },
+  "homepage": "https://github.com/tyczynski/create-google-maps#readme",
+  "devDependencies": {
+    "eslint": "^7.13.0",
+    "live-server": "^1.2.1",
+    "microbundle": "^0.12.4",
+    "prettier": "^2.1.2",
+    "rimraf": "^3.0.2"
+  }
+}
