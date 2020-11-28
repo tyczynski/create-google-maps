@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/tyczynski/create-google-maps#readme",
   "devDependencies": {
+    "@types/googlemaps": "^3.40.3",
     "eslint": "^7.13.0",
     "live-server": "^1.2.1",
     "microbundle": "^0.12.4",
