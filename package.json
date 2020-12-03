@@ -16,9 +16,25 @@
     "type": "git",
     "url": "git+https://github.com/tyczynski/create-google-maps.git"
   },
-  "keywords": [],
-  "author": "Przemysław Tyczyński <przemyslaw@tyczynski.pl",
-  "license": "MIT",
+  "keywords": [
+    "google-maps",
+    "declarative-programming"
+  ],
+  "files": [
+    "dist",
+    "src"
+  ],
+  "author": {
+    "name": "Przemysław Tyczyński",
+    "url": "https://tyczynski.pl",
+    "email": "przemyslaw@tyczynski.pl"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/tyczynski/create-google-maps/blob/master/LICENSE"
+    }
+  ],
   "bugs": {
     "url": "https://github.com/tyczynski/create-google-maps/issues"
   },
