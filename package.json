@@ -1,6 +1,6 @@
 {
   "name": "create-google-maps",
-  "version": "0.1.0",
+  "version": "0.1.0-alpha",
   "description": "Library for declarative creation of Google Maps",
   "source": "src/index.ts",
   "main": "dist/create-google-maps.js",
@@ -16,9 +16,25 @@
     "type": "git",
     "url": "git+https://github.com/tyczynski/create-google-maps.git"
   },
-  "keywords": [],
-  "author": "Przemysław Tyczyński <przemyslaw@tyczynski.pl",
-  "license": "MIT",
+  "keywords": [
+    "google-maps",
+    "declarative-programming"
+  ],
+  "files": [
+    "dist",
+    "src"
+  ],
+  "author": {
+    "name": "Przemysław Tyczyński",
+    "url": "https://tyczynski.pl",
+    "email": "przemyslaw@tyczynski.pl"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/tyczynski/create-google-maps/blob/master/LICENSE"
+    }
+  ],
   "bugs": {
     "url": "https://github.com/tyczynski/create-google-maps/issues"
   },
@@ -28,6 +44,10 @@
     "live-server": "^1.2.1",
     "microbundle": "^0.12.4",
     "prettier": "^2.1.2",
-    "rimraf": "^3.0.2"
+    "rimraf": "^3.0.2",
+    "tslib": "^2.0.3"
+  },
+  "dependencies": {
+    "@types/googlemaps": "^3.40.3"
   }
 }
