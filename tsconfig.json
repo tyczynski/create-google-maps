@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "types": ["googlemaps"],
+    "lib": ["ESNext", "DOM"],
+    "target": "ES6",
+    "moduleResolution": "Node"
+  }
+}
