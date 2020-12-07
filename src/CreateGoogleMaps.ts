@@ -1,6 +1,16 @@
 import { EventBus } from './lib'
 import { getContainer } from './utils'
-import { Marker, Map, State, MarkerOptions, Markers, Options } from './types'
+import {
+  Marker,
+  Map,
+  MapOptions,
+  MapLatLngBounds,
+  MapPadding,
+  State,
+  MarkerOptions,
+  Markers,
+  Options,
+} from './types'
 
 export class CreateGoogleMaps {
   public map: Map
@@ -28,6 +38,7 @@ export class CreateGoogleMaps {
 
     this.#state = {
       mounted: false,
+      centering: 'center',
     }
 
     this.registerPlugins()
@@ -72,6 +83,10 @@ export class CreateGoogleMaps {
 
     this.#markers.push(marker)
 
+    if (this.#state.centering === 'bounds') {
+      this.fitBounds(this.map.getBounds().extend(marker.getPosition()))
+    }
+
     return marker
   }
 
@@ -85,6 +100,10 @@ export class CreateGoogleMaps {
 
     this.#markers.forEach((_marker) => _marker.setMap(null))
     this.#markers = []
+
+    if (this.#state.centering === 'bounds') {
+      this.fitBounds()
+    }
   }
 
   /**
@@ -103,6 +122,53 @@ export class CreateGoogleMaps {
 
       return !equals
     })
+
+    if (this.#state.centering === 'bounds') {
+      this.fitBounds()
+    }
+  }
+
+  /**
+   * Sets the viewport to contain the given bounds.
+   * If the `bounds` is falsy, the bounds will fit to current markers' position.
+   *
+   * @see {@link https://developers.google.com/maps/documentation/javascript/reference/map#Map.fitBounds Maps JavaScript API}
+   * @param bounds
+   */
+  public fitBounds(bounds?: MapLatLngBounds, padding?: MapPadding) {
+    if (bounds) {
+      this.map.fitBounds(bounds, padding)
+    } else {
+      let _bounds = new this.gm.LatLngBounds()
+
+      // Set bounds based on current markers
+      this.#markers.forEach((marker) => {
+        _bounds.extend(marker.getPosition())
+      })
+
+      this.map.fitBounds(_bounds, padding)
+    }
+
+    this.#state.centering = 'bounds'
+  }
+
+  /**
+   * Remove bounds and set default position and zoom from options
+   *
+   * @param options - new default values for map instance
+   */
+  public removeBounds(
+    options: {
+      center?: MapOptions['center']
+      zoom?: MapOptions['zoom']
+    } = {}
+  ) {
+    const zoom = options.zoom || this.#options.mapOptions.zoom
+    const center = options.center || this.#options.mapOptions.center
+
+    this.map.setCenter(center)
+    this.map.setZoom(zoom)
+    this.#state.centering = 'center'
   }
 
   /**
