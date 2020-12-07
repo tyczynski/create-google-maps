@@ -1,14 +1,14 @@
 import { EventBus } from './lib'
 import { getContainer } from './utils'
 import {
-  Marker,
   Map,
+  MapMarker,
   MapOptions,
-  MapLatLngBounds,
   MapPadding,
+  MapMarkers,
+  MapLatLngBounds,
+  MapMarkerOptions,
   State,
-  MarkerOptions,
-  Markers,
   Options,
 } from './types'
 
@@ -18,7 +18,7 @@ export class CreateGoogleMaps {
   #options: Options
   #container: Element
   #state: State
-  #markers: Markers
+  #markers: MapMarkers
 
   constructor(options: Options) {
     this.map
@@ -75,7 +75,7 @@ export class CreateGoogleMaps {
    * @see {@link https://developers.google.com/maps/documentation/javascript/reference/marker#Marker.constructor Maps JavaScript API}
    * @param config
    */
-  public createMarker(config: MarkerOptions) {
+  public createMarker(config: MapMarkerOptions) {
     const marker = new this.gm.Marker({
       ...config,
       map: this.map,
@@ -112,7 +112,7 @@ export class CreateGoogleMaps {
    * @see {@link https://developers.google.com/maps/documentation/javascript/markers#remove Maps JavaScript API}
    * @param marker
    */
-  public removeMarker(marker: Marker) {
+  public removeMarker(marker: MapMarker) {
     this.#markers = this.#markers.filter((_marker) => {
       const equals = _marker === marker
 
