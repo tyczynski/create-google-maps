@@ -1,10 +1,18 @@
-import { EventBus } from './lib'
 import { getContainer } from './utils'
-import { Marker, Map, State, MarkerOptions, Markers, Options } from './types'
+import {
+  Marker,
+  GMap,
+  MapOptions,
+  MapLatLngBounds,
+  MapPadding,
+  State,
+  MarkerOptions,
+  Markers,
+  Options,
+} from './types'
 
 export class CreateGoogleMaps {
-  public map: Map
-  public eb: EventBus
+  public map: GMap
   #options: Options
   #container: Element
   #state: State
@@ -12,7 +20,6 @@ export class CreateGoogleMaps {
 
   constructor(options: Options) {
     this.map
-    this.eb = new EventBus()
     this.#options = Object.assign(
       {
         plugins: [],
@@ -27,26 +34,12 @@ export class CreateGoogleMaps {
     }
 
     this.#state = {
+      infoWindows: new Map<Marker, google.maps.MapsEventListener>(),
       mounted: false,
+      centering: 'center',
     }
 
-    this.registerPlugins()
-    this.mount()
-  }
-
-  private mount() {
     this.createMap()
-  }
-
-  private registerPlugins() {
-    this.#options.plugins.forEach((plugin) => {
-      const instance = plugin(this)
-
-      Object.keys(instance.methods).forEach((method) => {
-        this[method] = instance.methods[method]
-        console.log(this[method])
-      })
-    })
   }
 
   /**
@@ -63,6 +56,7 @@ export class CreateGoogleMaps {
    *
    * @see {@link https://developers.google.com/maps/documentation/javascript/reference/marker#Marker.constructor Maps JavaScript API}
    * @param config
+   * @returns - marker instance
    */
   public createMarker(config: MarkerOptions) {
     const marker = new this.gm.Marker({
@@ -71,6 +65,10 @@ export class CreateGoogleMaps {
     })
 
     this.#markers.push(marker)
+
+    if (this.#state.centering === 'bounds') {
+      this.fitBounds(this.map.getBounds().extend(marker.getPosition()))
+    }
 
     return marker
   }
@@ -81,10 +79,12 @@ export class CreateGoogleMaps {
    * @see {@link https://developers.google.com/maps/documentation/javascript/markers#remove Maps JavaScript API}
    */
   public removeMarkers() {
-    this.eb.emit('')
-
     this.#markers.forEach((_marker) => _marker.setMap(null))
     this.#markers = []
+
+    if (this.#state.centering === 'bounds') {
+      this.fitBounds()
+    }
   }
 
   /**
@@ -103,6 +103,92 @@ export class CreateGoogleMaps {
 
       return !equals
     })
+
+    if (this.#state.centering === 'bounds') {
+      this.fitBounds()
+    }
+  }
+
+  /**
+   * Sets the viewport to contain the given bounds.
+   * If the `bounds` is falsy, the bounds will fit to current markers' position.
+   *
+   * @see {@link https://developers.google.com/maps/documentation/javascript/reference/map#Map.fitBounds Maps JavaScript API}
+   * @param bounds
+   */
+  public fitBounds(bounds?: MapLatLngBounds, padding?: MapPadding) {
+    if (bounds) {
+      this.map.fitBounds(bounds, padding)
+    } else {
+      let _bounds = new this.gm.LatLngBounds()
+
+      // Set bounds based on current markers
+      this.#markers.forEach((marker) => {
+        _bounds.extend(marker.getPosition())
+      })
+
+      this.map.fitBounds(_bounds, padding)
+    }
+
+    this.#state.centering = 'bounds'
+  }
+
+  /**
+   * Remove bounds and set default position and zoom from options
+   *
+   * @param options - new default values for map instance
+   */
+  public removeBounds(
+    options: {
+      center?: MapOptions['center']
+      zoom?: MapOptions['zoom']
+    } = {}
+  ) {
+    const zoom = options.zoom || this.#options.mapOptions.zoom
+    const center = options.center || this.#options.mapOptions.center
+
+    this.map.setCenter(center)
+    this.map.setZoom(zoom)
+    this.#state.centering = 'center'
+  }
+
+  /**
+   * Creates an info window with the given options.
+   *
+   * @see {@link https://developers.google.com/maps/documentation/javascript/reference/info-window#InfoWindow.constructor Maps JavaScript API}
+   * @param marker
+   * @param config
+   */
+  createInfoWindow(marker: Marker, config: google.maps.InfoWindowOptions) {
+    const infoWindow = new this.gm.InfoWindow(config)
+    let open = false
+
+    const removeListener = marker.addListener('click', () => {
+      if (open) {
+        infoWindow.close()
+      } else {
+        infoWindow.open(this.map, marker)
+      }
+
+      open = !open
+    })
+
+    this.#state.infoWindows.set(marker, removeListener)
+  }
+
+  /**
+   * Remove InfoWindow from passed marker
+   *
+   * @see {@link https://developers.google.com/maps/documentation/javascript/infowindows}
+   * @param marker
+   */
+  removeInfoWindow(marker: Marker) {
+    const handler = this.#state.infoWindows.get(marker)
+
+    if (handler) {
+      handler.remove()
+      this.#state.infoWindows.delete(marker)
+    }
   }
 
   /**
