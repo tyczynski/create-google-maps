@@ -1,6 +1,6 @@
 {
   "name": "create-google-maps",
-  "version": "0.1.0-alpha",
+  "version": "0.2.0",
   "description": "Library for declarative creation of Google Maps",
   "source": "src/index.ts",
   "main": "dist/create-google-maps.js",
