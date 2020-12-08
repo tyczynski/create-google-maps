@@ -1,28 +1,25 @@
-import { EventBus } from './lib'
 import { getContainer } from './utils'
 import {
-  Map,
-  MapMarker,
+  Marker,
+  GMap,
   MapOptions,
-  MapPadding,
-  MapMarkers,
   MapLatLngBounds,
-  MapMarkerOptions,
+  MapPadding,
   State,
+  MarkerOptions,
+  Markers,
   Options,
 } from './types'
 
 export class CreateGoogleMaps {
-  public map: Map
-  public eb: EventBus
+  public map: GMap
   #options: Options
   #container: Element
   #state: State
-  #markers: MapMarkers
+  #markers: Markers
 
   constructor(options: Options) {
     this.map
-    this.eb = new EventBus()
     this.#options = Object.assign(
       {
         plugins: [],
@@ -37,27 +34,12 @@ export class CreateGoogleMaps {
     }
 
     this.#state = {
+      infoWindows: new Map<Marker, google.maps.MapsEventListener>(),
       mounted: false,
       centering: 'center',
     }
 
-    this.registerPlugins()
-    this.mount()
-  }
-
-  private mount() {
     this.createMap()
-  }
-
-  private registerPlugins() {
-    this.#options.plugins.forEach((plugin) => {
-      const instance = plugin(this)
-
-      Object.keys(instance.methods).forEach((method) => {
-        this[method] = instance.methods[method]
-        console.log(this[method])
-      })
-    })
   }
 
   /**
@@ -74,8 +56,9 @@ export class CreateGoogleMaps {
    *
    * @see {@link https://developers.google.com/maps/documentation/javascript/reference/marker#Marker.constructor Maps JavaScript API}
    * @param config
+   * @returns - marker instance
    */
-  public createMarker(config: MapMarkerOptions) {
+  public createMarker(config: MarkerOptions) {
     const marker = new this.gm.Marker({
       ...config,
       map: this.map,
@@ -96,8 +79,6 @@ export class CreateGoogleMaps {
    * @see {@link https://developers.google.com/maps/documentation/javascript/markers#remove Maps JavaScript API}
    */
   public removeMarkers() {
-    this.eb.emit('')
-
     this.#markers.forEach((_marker) => _marker.setMap(null))
     this.#markers = []
 
@@ -112,7 +93,7 @@ export class CreateGoogleMaps {
    * @see {@link https://developers.google.com/maps/documentation/javascript/markers#remove Maps JavaScript API}
    * @param marker
    */
-  public removeMarker(marker: MapMarker) {
+  public removeMarker(marker: Marker) {
     this.#markers = this.#markers.filter((_marker) => {
       const equals = _marker === marker
 
@@ -169,6 +150,45 @@ export class CreateGoogleMaps {
     this.map.setCenter(center)
     this.map.setZoom(zoom)
     this.#state.centering = 'center'
+  }
+
+  /**
+   * Creates an info window with the given options.
+   *
+   * @see {@link https://developers.google.com/maps/documentation/javascript/reference/info-window#InfoWindow.constructor Maps JavaScript API}
+   * @param marker
+   * @param config
+   */
+  createInfoWindow(marker: Marker, config: google.maps.InfoWindowOptions) {
+    const infoWindow = new this.gm.InfoWindow(config)
+    let open = false
+
+    const removeListener = marker.addListener('click', () => {
+      if (open) {
+        infoWindow.close()
+      } else {
+        infoWindow.open(this.map, marker)
+      }
+
+      open = !open
+    })
+
+    this.#state.infoWindows.set(marker, removeListener)
+  }
+
+  /**
+   * Remove InfoWindow from passed marker
+   *
+   * @see {@link https://developers.google.com/maps/documentation/javascript/infowindows}
+   * @param marker
+   */
+  removeInfoWindow(marker: Marker) {
+    const handler = this.#state.infoWindows.get(marker)
+
+    if (handler) {
+      handler.remove()
+      this.#state.infoWindows.delete(marker)
+    }
   }
 
   /**
