@@ -9,6 +9,7 @@ import {
   MarkerOptions,
   Markers,
   Options,
+  InfoWindowOptions,
 } from './types'
 
 export class CreateGoogleMaps {
@@ -74,7 +75,7 @@ export class CreateGoogleMaps {
   }
 
   /**
-   * Removes all markers from map
+   * Removes all markers from the map
    *
    * @see {@link https://developers.google.com/maps/documentation/javascript/markers#remove Maps JavaScript API}
    */
@@ -159,7 +160,7 @@ export class CreateGoogleMaps {
    * @param marker
    * @param config
    */
-  createInfoWindow(marker: Marker, config: google.maps.InfoWindowOptions) {
+  createInfoWindow(marker: Marker, config: InfoWindowOptions) {
     const infoWindow = new this.gm.InfoWindow(config)
     let open = false
 
