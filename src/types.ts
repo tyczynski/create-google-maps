@@ -10,8 +10,9 @@ export type GMap = google.maps.Map
 export type Marker = google.maps.Marker
 export type MapOptions = google.maps.MapOptions
 export type MapLatLngBounds = google.maps.LatLngBounds | google.maps.LatLngBoundsLiteral
-export type MapPadding = google.maps.Padding
+export type MapPadding = google.maps.Padding | number
 export type MapEventListener = google.maps.MapsEventListener
+export type InfoWindowOptions = google.maps.InfoWindowOptions
 
 export type Markers = Marker[]
 export type MarkerOptions = Omit<google.maps.ReadonlyMarkerOptions, 'map'>
